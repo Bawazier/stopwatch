@@ -5,55 +5,44 @@ import { FaPlay } from "@react-icons/all-files/fa/FaPlay";
 import { FaPause } from "@react-icons/all-files/fa/FaPause";
 import { FaFlag } from "@react-icons/all-files/fa/FaFlag";
 
-function formatTime(milliSeconds) {
-  let second = Math.floor(milliSeconds / 100);
-  let minute = Math.floor(second / 60);
-  milliSeconds = milliSeconds % 100;
-  second = second % 60;
-  minute = minute % 60;
-
-  return (
-    (minute + "").padStart(2, "0") +
-    ":" +
-    (second + "").padStart(2, "0") +
-    "." +
-    (milliSeconds + "").padStart(2, "0")
-  );
-}
+const formatTime = (time) => {
+  const milliseconds = time % 1000;
+  const seconds = Math.floor(time / 1000) % 60;
+  const minutes = Math.floor(time / 60000);
+  const millisecondsString = milliseconds.toString().slice(-2);
+  return `${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")}.${millisecondsString.padStart(2, "0")}`;
+};
 
 export default function Home() {
-  const [milliSeconds, setMilliSeconds] = useState(0);
-  const [timeLap, setTimeLap] = useState(0);
-  const [play, setPlay] = useState(false);
-  const [lap, setLap] = useState([]);
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [laps, setLaps] = useState([]);
 
   useEffect(() => {
-    if (!play) return;
-    const interval = setInterval(() => {
-      setMilliSeconds((prevMiliSecond) => prevMiliSecond + 1);
-      setTimeLap((prevTimeLap) => prevTimeLap + 1);
-    }, 10);
+    let intervalId;
+    if (isRunning) {
+      intervalId = setInterval(() => {
+        setTime((prevTime) => prevTime + 10);
+      }, 10);
+    }
+    return () => clearInterval(intervalId);
+  }, [isRunning]);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [play]);
+  const handleStart = useCallback(() => setIsRunning(true), []);
 
-  const handleToggle = useCallback(() => {
-    setPlay((prevPlay) => !prevPlay);
-  }, []);
+  const handleStop = useCallback(() => setIsRunning(false), []);
 
   const handleReset = useCallback(() => {
-    setMilliSeconds(0);
-    setTimeLap(0);
-    setPlay(false);
-    setLap([]);
+    setTime(0);
+    setIsRunning(false);
+    setLaps([]);
   }, []);
 
   const handleLap = useCallback(() => {
-    setLap((prevLap) => [{ total: milliSeconds, lap: timeLap }, ...prevLap]);
-    setTimeLap(0);
-  }, [milliSeconds, timeLap]);
+    setLaps((prevLaps) => [...prevLaps, time]);
+  }, [time]);
 
   return (
     <>
@@ -65,37 +54,43 @@ export default function Home() {
       </Head>
       <div className="container mx-auto max-w-screen-sm space-y-8 text-center">
         <div className="mx-auto my-8">
-          <h1 className="text-5xl text-black">{formatTime(milliSeconds)}</h1>
+          <h1 className="text-5xl text-black">{formatTime(time)}</h1>
         </div>
         <ul className="max-h-80 space-y-4 overflow-x-scroll">
-          {lap.map((item, index) => (
+          {laps.map((item, index) => (
             <li key={index} className="flex">
               <div className="flex-auto">
-                {lap.length - index < 10
-                  ? `0${lap.length - index}`
-                  : lap.length - index}
+                {laps.length - index < 10
+                  ? `0${laps.length - index}`
+                  : laps.length - index}
               </div>
-              <div className="flex-auto">+ {formatTime(item.total)}</div>
-              <div className="flex-auto">{formatTime(item.lap)}</div>
+              <div aria-label="lap_duration" className="flex-auto">
+                + {formatTime(item)}
+              </div>
+              <div aria-label="lap_time" className="flex-auto">
+                {formatTime(item)}
+              </div>
             </li>
           ))}
         </ul>
 
         <div className="space-x-8">
-          {milliSeconds !== 0 && (
+          {time !== 0 && (
             <button
-              onClick={play ? handleLap : handleReset}
+              aria-label={isRunning ? "lap" : "reset"}
+              onClick={isRunning ? handleLap : handleReset}
               className="relative mx-auto inline-flex items-center rounded-full bg-white p-4 text-lg text-blue-500 shadow-lg"
             >
-              {play ? <FaFlag /> : <FaStop />}
+              {isRunning ? <FaFlag /> : <FaStop />}
             </button>
           )}
 
           <button
-            onClick={handleToggle}
+            aria-label={isRunning ? "stop" : "start"}
+            onClick={isRunning ? handleStop : handleStart}
             className="relative mx-auto inline-flex items-center rounded-full bg-white p-4 text-lg text-blue-500 shadow-lg"
           >
-            {play ? <FaPause /> : <FaPlay />}
+            {isRunning ? <FaPause /> : <FaPlay />}
           </button>
         </div>
       </div>

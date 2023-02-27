@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders homepage unchanged 1`] = `
+<div>
+  <div
+    class="container mx-auto max-w-screen-sm space-y-8 text-center"
+  >
+    <div
+      class="mx-auto my-8"
+    >
+      <h1
+        class="text-5xl text-black"
+      >
+        00:00.00
+      </h1>
+    </div>
+    <ul
+      class="max-h-80 space-y-4 overflow-x-scroll"
+    />
+    <div
+      class="space-x-8"
+    >
+      <button
+        aria-label="start"
+        class="relative mx-auto inline-flex items-center rounded-full bg-white p-4 text-lg text-blue-500 shadow-lg"
+      >
+        <svg
+          fill="currentColor"
+          height="1em"
+          stroke="currentColor"
+          stroke-width="0"
+          viewBox="0 0 448 512"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+`;
